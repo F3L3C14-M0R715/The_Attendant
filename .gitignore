@@ -1,0 +1,4 @@
+.env
+attendant/
+__pycache__/
+*.py[cod]

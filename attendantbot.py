@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+import sqlite3
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -22,6 +23,11 @@ async def ping(ctx):
     latency = round(bot.latency * 1000)
     await ctx.send(f"You ponged!? {latency}ms")
 
+
+@bot.command()
+async def say(ctx, *, question):
+    await ctx.message.delete()
+    await ctx.send(f'{question}')
 
 
 bot.run(TOKEN)

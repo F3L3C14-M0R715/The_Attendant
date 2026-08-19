@@ -110,12 +110,13 @@ async def on_message(msg):
                 
                 if num_warnings >= 3:
                     await msg.author.ban(reason="Exceeded the three graces for using cruel language.")
-                    await msg.channel.send(f"{msg.author.mention} has been banned for repeated cruel language.")
+                    await msg.author.send(f"{msg.author.mention} has been banned for repeated cruel language.")
+
                 else:
-                    await msg.channel.send(
+                    await msg.author.send(
                         f"Warning {num_warnings}/3 {msg.author.mention}. If you exceed 3 uses of cruel language, you will be banned."
                     )
-
+                    
                     await msg.delete()
                 break
     await bot.process_commands(msg)

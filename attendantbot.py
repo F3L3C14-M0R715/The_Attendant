@@ -45,15 +45,28 @@ def increase_and_get_warnings(user_id: int, guild_id: int):
     result = cursor.fetchone()
 
     if result is None:
-        cursor.execute("""
-            INSERT INTO users_per_guild (user_id, warning_count, guild_id)
-            VALUES (?, 1, ?);
-        """, (user_id, guild_id))
+        try:
+            cursor.execute("""
+                INSERT INTO users_per_guild (user_id, warning_count, guild_id)
+                VALUES (?, 1, ?);
+            """, (user_id, guild_id))
 
-        connection.commit()
-        connection.close()
+            connection.commit()
+            connection.close()
 
-        return 1
+            return 1
+
+        except sqlite3.IntegrityError:
+            # Another execution created the row between our SELECT and INSERT.
+            connection.rollback()
+
+            cursor.execute("""
+            SELECT warning_count
+            FROM users_per_guild
+            WHERE (user_id = ?) AND (guild_id = ?);
+            """, (user_id, guild_id))
+
+            result = cursor.fetchone()
 
     cursor.execute("""
     UPDATE users_per_guild
@@ -100,14 +113,21 @@ async def say(ctx, *, question):
 
 @bot.event
 async def on_message(msg):
+    print(f"PROCESSING MESSAGE ID: {msg.id}")
+    print(f"MESSAGE: {msg.author}: {msg.content}")
+
     if msg.author.id != bot.user.id:
         for term in profanity:
             if re.search(rf"\b{re.escape(term)}\b", msg.content, re.IGNORECASE):
+
+                print(f"PROFANITY MATCH: {term}")
+
                 num_warnings = increase_and_get_warnings(
                     msg.author.id,
                     msg.guild.id
                 )
-                
+
+                print(f"WARNING COUNT: {num_warnings}")
                 if num_warnings >= 3:
                     await msg.author.ban(reason="Exceeded the three graces for using cruel language.")
                     await msg.author.send(f"{msg.author.mention} has been banned for repeated cruel language.")

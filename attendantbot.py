@@ -4,6 +4,14 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import sqlite3
 import re
+from discord import Intents
+
+intents = Intents.all()
+client = discord.Client(intents=intents)
+intents.message_content = True
+
+TOKEN = os.getenv("DISCORD_TOKEN")
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -66,16 +74,18 @@ def increase_and_get_warnings(user_id: int, guild_id: int):
 
 load_dotenv()
 
-TOKEN = os.getenv("DISCORD_TOKEN")
 
-intents = discord.Intents.default()
-intents.message_content = True
 
 bot = commands.Bot(
     command_prefix="a!",
     intents=intents
 )
 
+@bot.command()
+async def giverole(ctx, arg: discord.Member):
+    await ctx.send(arg)
+    knownrole = discord.utils.get(ctx.guild.roles, name="the name of the role")
+    await arg.add_roles(knownrole)
 
 @bot.event
 async def on_ready():

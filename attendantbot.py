@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 profanity_path = os.path.join(BASE_DIR, "profanity.txt")
 database_path = os.path.join(BASE_DIR, "user_warnings.db")
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
@@ -141,5 +141,16 @@ async def on_message(msg):
                 break
 
     await bot.process_commands(msg)
+
+@client.event
+async def on_message(msg):
+    if msg.channel.id == 1546327837236011158:
+        if msg.content.startswith('rolesfm'):
+            embedvar = discord.Embed(title="Please react to this message to get male/female roles!",
+                                     description="Click the respective emoji to recieve your role." 
+                                                    "\n<:purplewapple:1512455137069895861> - Male"
+                                                    "\n<:pinkwapple:1512455093574832128> - Female", color=0x00ff00)
+
+
 
 bot.run(TOKEN)

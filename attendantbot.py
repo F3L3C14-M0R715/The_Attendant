@@ -1,5 +1,6 @@
 import os
 import discord
+from discord.utils import get
 from discord.ext import commands
 from dotenv import load_dotenv
 import sqlite3
@@ -14,11 +15,16 @@ database_path = os.path.join(BASE_DIR, "user_warnings.db")
 
 intents = discord.Intents.all()
 intents.message_content = True
+intents.reactions = True
+intents.members = True
 client = discord.Client(intents=intents)
 
+# for access to profanity file list
 with open(profanity_path, "r") as file:
     profanity = {line.strip() for line in file if line.strip()}
 
+
+# for warning system + bans
 
 def create_user_table():
     connection = sqlite3.connect(database_path)
@@ -82,11 +88,41 @@ bot = commands.Bot(
 )
 
 
+# stuff for the role reactions (see line 106)
+CHANNEL_ID = 1546327837236011158
+# will add categories
+ROLE_1 = "test"
+EMOJI_1 = "🏃"
+MSG_ID_1 = None
+
 @bot.event
 async def on_ready():
     await bot.tree.sync()
     print(f"{bot.user} is online!")
+    # reaction roles message setup. see below for the actual stuff ig
+    channel = bot.get_channel(CHANNEL_ID)
+    if channel:
+        msg1 = await channel.send("React test")
+        await msg1.add_reaction(EMOJI_1)
+        global MSG_ID_1
+        MSG_ID_1 = msg1.id
 
+#the the uhhh uhh the ting
+@bot.event
+async def on_raw_reaction_add(payload):
+    guild = bot.get_guild(payload.guild_id)
+    if not guild:
+        return
+    member = guild.get_member(payload.user_id)
+    if not member or member.bot:
+        return
+
+    emoji = str(payload.emoji)
+
+    if payload.message_id == MSG_ID_1 and emoji == EMOJI_1:
+        role = discord.utils.get(guild.roles, name=ROLE_1)
+        if role:
+            await member.add_roles(role)
 
 @bot.command()
 async def ping(ctx):
@@ -141,16 +177,6 @@ async def on_message(msg):
                 break
 
     await bot.process_commands(msg)
-
-@client.event
-async def on_message(msg):
-    if msg.channel.id == 1546327837236011158:
-        if msg.content.startswith('rolesfm'):
-            embedvar = discord.Embed(title="Please react to this message to get male/female roles!",
-                                     description="Click the respective emoji to recieve your role." 
-                                                    "\n<:purplewapple:1512455137069895861> - Male"
-                                                    "\n<:pinkwapple:1512455093574832128> - Female", color=0x00ff00)
-
 
 
 bot.run(TOKEN)

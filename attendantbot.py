@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 import sqlite3
 import re
 from discord import Intents
-
+import psutil
+import speedtest
+import asyncio
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,6 +20,7 @@ intents.message_content = True
 intents.reactions = True
 intents.members = True
 client = discord.Client(intents=intents)
+
 
 # for access to profanity file list
 with open(profanity_path, "r") as file:
@@ -167,10 +170,19 @@ ROLE_18 = "Among Us Appreciator"
 EMOJI_18 = "<:black_imposter:1532910495751995472>"
 MSG_ID_18 = None
 
+ROLE_20 = "Roblox Ruffian"
+EMOJI_20 = "<:Silly:1548921066641035345>"
+MSG_ID_20 = None
+
+# special roles
+ROLE_19 = "Welcomers"
+EMOJI_19 = "<:tee_hee:1536531895758622763>"
+MSG_ID_19 = None
+
 
 @bot.event
 async def on_ready():
-    global MSG_ID_1, MSG_ID_2, MSG_ID_3, MSG_ID_4, MSG_ID_5, MSG_ID_6, MSG_ID_7, MSG_ID_8, MSG_ID_9, MSG_ID_10, MSG_ID_11, MSG_ID_12, MSG_ID_13, MSG_ID_14, MSG_ID_15, MSG_ID_16, MSG_ID_17, MSG_ID_18
+    global MSG_ID_1, MSG_ID_2, MSG_ID_3, MSG_ID_4, MSG_ID_5, MSG_ID_6, MSG_ID_7, MSG_ID_8, MSG_ID_9, MSG_ID_10, MSG_ID_11, MSG_ID_12, MSG_ID_13, MSG_ID_14, MSG_ID_15, MSG_ID_16, MSG_ID_17, MSG_ID_18, MSG_ID_19, MSG_ID_20
     await bot.tree.sync()
     print(f"{bot.user} is online!")
     # reaction roles message setup. see below for the actual stuff ig
@@ -229,19 +241,28 @@ async def on_ready():
             f"{EMOJI_15} Formula 1\n"
             f"{EMOJI_16} Fortnite\n"
             f"{EMOJI_17} Stardew\n"
-            f"{EMOJI_18} Amongus")
+            f"{EMOJI_18} Amongus\n"
+            f"{EMOJI_20} Roblox")
         await msg4.add_reaction(EMOJI_13)
         await msg4.add_reaction(EMOJI_14)
         await msg4.add_reaction(EMOJI_15)
         await msg4.add_reaction(EMOJI_16)
         await msg4.add_reaction(EMOJI_17)
         await msg4.add_reaction(EMOJI_18)
+        await msg4.add_reaction(EMOJI_20)
         MSG_ID_13 = msg4.id
         MSG_ID_14 = msg4.id
         MSG_ID_15 = msg4.id
         MSG_ID_16 = msg4.id
         MSG_ID_17 = msg4.id
         MSG_ID_18 = msg4.id
+        MSG_ID_20 = msg4.id
+
+        msg5 = await channel.send(
+            f"Select special roles:\n"
+            f"{EMOJI_19} Welcome gang")
+        await msg5.add_reaction(EMOJI_19)
+        MSG_ID_19 = msg5.id
 
 
 
@@ -329,6 +350,14 @@ async def on_raw_reaction_add(payload):
         role = discord.utils.get(guild.roles, name=ROLE_18)
         if role:
             await member.add_roles(role)
+    if payload.message_id == MSG_ID_19 and emoji == EMOJI_19:
+        role = discord.utils.get(guild.roles, name=ROLE_19)
+        if role:
+            await member.add_roles(role)
+    if payload.message_id == MSG_ID_20 and emoji == EMOJI_20:
+        role = discord.utils.get(guild.roles, name=ROLE_20)
+        if role:
+            await member.add_roles(role)
 
 @bot.event
 async def on_raw_reaction_remove(payload):
@@ -413,18 +442,64 @@ async def on_raw_reaction_remove(payload):
         role = discord.utils.get(guild.roles, name=ROLE_18)
         if role:
             await member.remove_roles(role)
+    if payload.message_id == MSG_ID_19 and emoji == EMOJI_19:
+        role = discord.utils.get(guild.roles, name=ROLE_19)
+        if role:
+            await member.remove_roles(role)
+    if payload.message_id == MSG_ID_20 and emoji == EMOJI_20:
+        role = discord.utils.get(guild.roles, name=ROLE_20)
+        if role:
+            await member.remove_roles(role)
 
+# Adding member role
+@bot.event
+async def on_member_join(member):
+    role = discord.utils.get(member.server.roles, id="<1511456137394782288>")
+    await bot.add_roles(member, role)
 
+# bot ping
 @bot.command()
 async def ping(ctx):
     latency = round(bot.latency * 1000)
     await ctx.send(f"You ponged!? {latency}ms")
 
-
+# bot replies 
 @bot.command()
 async def say(ctx, *, question):
     await ctx.message.delete()
     await ctx.send(f"{question}")
+
+# role triggers
+@bot.command()
+async def ruleone(ctx):
+    bedem = discord.Embed(title = '1. RESPECT OUR AUTHORITAH!1!!1')
+    bedem.add_field(name = "\u200b", value = "Reference aside, please always be mindful of the owner and staff’s comments to effectively moderate the server.")
+    await ctx.send(embed = bedem)
+
+@bot.command()
+async def ruletwo(ctx):
+    bedem = discord.Embed(title = "2. Respect is earned.")
+    bedem.add_field(name = "\u200b", value = "Please treat everyone with the same amount of dignity and respect you deserve.\n"
+                            "i. No profanity of any kind, especially those that take the Lord’s name in vain.\n"
+                            "ii. No insulting or inciting hate or malice towards anyone, group of people, or gender. This applies to both text and voice channels.\n"
+                            "iii. No NSFW content including but not limited to: explicit adult materials, gore and violence, suspicious links, etc.\n"
+                            "iv. Absolutely under no circumstances is it allowed to release information about another user without their consent. Name, age, location, photos, videos, etc.")
+    await ctx.send(embed = bedem)
+
+@bot.command()
+async def rulethree(ctx):
+    bedem = discord.Embed(title = "3. Respective Channels")
+    bedem.add_field(name = "\u200b", value = "Please use the appropriate channels for any given discussion, they are all specified in <#1536190441832054904>\n" 
+                            "Most importantly:\n"
+                            "<#1521362394234748979> is the general chat of the server and will be open to any topic that does not go against the aforementioned rules.\n"
+                            "If you discern that a topic might stir up negative emotions please redirect it to the <#1531433390774157352> or to not be discussed at all.")
+    await ctx.send(embed = bedem)
+
+@bot.command()
+async def rulefour(ctx):
+    bedem = discord.Embed(title = "4. Have fun!")
+    bedem.add_field(name = "\u200b", value = ":3")
+    await ctx.send(embed = bedem)
 
 
 @bot.event
@@ -468,6 +543,45 @@ async def on_message(msg):
                 break
 
     await bot.process_commands(msg)
+
+# for stats and stuffs
+@bot.command()
+async def weylandstats(ctx):
+    def run_speedtest():
+        st = speedtest.Speedtest()
+        st.get_best_server()
+        return st.download()/1_000_000, st.upload()/1_000_000, st.results.ping
+    
+    await ctx.send("Please wait while Discord.py communicates with Weyland Corp Servers...")
+    try:
+        dl, ul, ping = await asyncio.to_thread(run_speedtest)
+    except Exception as e:
+        await ctx.send(f"Speedtest failed: {e}")
+        return
+    bedem = discord.Embed(title = 'System Resource Usage', description = 'See CPU and memory usage of the system.')
+    bedem.add_field(name = 'CPU Usage', value = f'{psutil.cpu_percent()}%', inline = False)
+    bedem.add_field(name = 'Memory Usage', value = f'{psutil.virtual_memory().percent}%', inline = False)
+    bedem.add_field(name = 'Available Memory', value = f'{psutil.virtual_memory().available * 100 / psutil.virtual_memory().total:.3f}%', inline = False)
+    temps = psutil.sensors_temperatures()
+    if temps:
+        first_sensor = next(iter(temps.values()))[0]
+        fahrenheit = first_sensor.current * 9 / 5 + 32
+        bedem.add_field(name = 'Temperature', value = f'{first_sensor.current:.2f} Celsius / {fahrenheit:.2f} Fahrenheit', inline = True)
+    else:
+        bedem.add_field(name = 'Temperature', value = 'N/A', inline = False)
+    bedem.add_field(name='Download', value=f'{dl:.2f} Mbps', inline= False)
+    bedem.add_field(name='Upload', value=f'{ul:.2f} Mbps', inline=True)
+    bedem.add_field(name='Ping', value=f'{ping:.1f} ms', inline=True)
+    await ctx.send(embed = bedem)
+
+# welcome!!
+@bot.event
+async def on_member_join(member):
+    channel = bot.get_channel(1521362394234748979)
+    await channel.send(f"Hey, {member.mention}, welcome to The Guild!! Please head to <#1552597300486873208> to select roles! <@1553262392371318815>")
+
+
+
 
 
 bot.run(TOKEN)

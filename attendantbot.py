@@ -9,6 +9,7 @@ from discord import Intents
 import psutil
 import speedtest
 import asyncio
+import random
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -188,6 +189,7 @@ async def on_ready():
     # reaction roles message setup. see below for the actual stuff ig
     channel = bot.get_channel(CHANNEL_ID)
     if channel:
+        await channel.purge()
         msg1 = await channel.send(
             f"Select your gender:\n"
             f"{EMOJI_1} Male\n"
@@ -580,7 +582,17 @@ async def on_member_join(member):
     channel = bot.get_channel(1521362394234748979)
     await channel.send(f"Hey, {member.mention}, welcome to The Guild!! Please head to <#1552597300486873208> to select roles! <@1553262392371318815>")
 
-
+# general triggers
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+    await bot.process_commands(message)
+#cope
+@bot.command
+async def cope(ctx):
+    await ctx.send(file=discord.File(random.choice(['cope1.png', 'cope2.png', 'cope3.png', 'cope4.png', 'cope5.png'])))   
+    
 
 
 

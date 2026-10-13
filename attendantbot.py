@@ -456,8 +456,11 @@ async def on_raw_reaction_remove(payload):
 # Adding member role
 @bot.event
 async def on_member_join(member):
-    role = discord.utils.get(member.server.roles, id="<1511456137394782288>")
-    await bot.add_roles(member, role)
+    role = discord.utils.get(member.guild.roles, id=1511456137394782288)
+    if role:
+        await member.add_roles(role)
+    channel = bot.get_channel(1521362394234748979)
+    await channel.send(f"Hey, {member.mention}, welcome to The Guild!! Please head to <#1552597300486873208> to select roles! <@1553262392371318815>")
 
 # bot ping
 @bot.command()
@@ -506,6 +509,8 @@ async def rulefour(ctx):
 
 @bot.event
 async def on_message(msg):
+    if msg.author == bot.user:
+        return
     print(f"MESSAGE: {msg.author}: {msg.content}")
 
     if msg.author.id != bot.user.id:
@@ -576,24 +581,43 @@ async def weylandstats(ctx):
     bedem.add_field(name='Ping', value=f'{ping:.1f} ms', inline=True)
     await ctx.send(embed = bedem)
 
-# welcome!!
-@bot.event
-async def on_member_join(member):
-    channel = bot.get_channel(1521362394234748979)
-    await channel.send(f"Hey, {member.mention}, welcome to The Guild!! Please head to <#1552597300486873208> to select roles! <@1553262392371318815>")
+
 
 # general triggers
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    await bot.process_commands(message)
+
 #cope
-@bot.command
+@bot.command()
 async def cope(ctx):
-    await ctx.send(file=discord.File(random.choice(['cope1.png', 'cope2.png', 'cope3.png', 'cope4.png', 'cope5.png'])))   
-    
-
-
-
+    path = os.path.join(BASE_DIR, random.choice(['media/cope1.png', 'media/cope2.png', 'media/cope3.png', 'media/cope4.png', 'media/cope5.png']))
+    await ctx.send(file=discord.File(path))
+#waystocopelol
+@bot.command()
+async def waystocope(ctx):
+    path = os.path.join(BASE_DIR,'media/waystocope.png')
+    await ctx.send(file=discord.File(path))
+#confusion
+@bot.command()
+async def confusion(ctx):
+    path = os.path.join(BASE_DIR,'media/confusion.gif')
+    await ctx.send(file=discord.File(path))
+#exitmusic
+@bot.command()
+async def exitmusic(ctx):
+    path = os.path.join(BASE_DIR,'media/exitmusic.gif')
+    await ctx.send(file=discord.File(path))
+#kill
+@bot.command()
+async def kill(ctx):
+    path = os.path.join(BASE_DIR,'media/kill.gif')
+    await ctx.send(file=discord.File(path))
+#silly
+@bot.command()
+async def silly(ctx):
+    path = os.path.join(BASE_DIR,'media/silly.gif')
+    await ctx.send(file=discord.File(path))
+#bonk
+@bot.command()
+async def bonk(ctx):
+    path = os.path.join(BASE_DIR,'media/bonk.gif')
+    await ctx.send(file=discord.File(path))
 bot.run(TOKEN)

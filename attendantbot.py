@@ -620,4 +620,9 @@ async def silly(ctx):
 async def bonk(ctx):
     path = os.path.join(BASE_DIR,'media/bonk.gif')
     await ctx.send(file=discord.File(path))
+#opsec
+@bot.command()
+async def opsec(ctx):
+    path = os.path.join(BASE_DIR,'media/opsec.png')
+    await ctx.send(file=discord.File(path))
 bot.run(TOKEN)
